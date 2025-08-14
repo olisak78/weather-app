@@ -1,0 +1,12 @@
+{
+  "welcome": "Welcome to Location Search",
+  "searchPlaceholder": "Search for a location...",
+  "selectedLocation": "Selected Location:",
+  "noResults": "No locations found",
+  "loading": "Loading locations...",
+  "error": "Error loading locations. Please try again.",
+  "lightTheme": "Light",
+  "darkTheme": "Dark",
+  "language": "Language",
+  "code": "Code"
+}

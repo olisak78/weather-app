@@ -1,0 +1,77 @@
+.theme-toggle {
+  &__button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: 2px solid var(--border-color);
+    border-radius: 25px;
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: var(--text-color);
+    background-color: var(--button-bg);
+
+    &:hover {
+      border-color: var(--primary-color);
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px var(--shadow-color);
+    }
+
+    &:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px var(--primary-color-light);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+
+  &__slider {
+    position: relative;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__icon {
+    font-size: 16px;
+    transition: transform 0.3s ease;
+  }
+
+  &__label {
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+}
+
+// Animation for icon change
+.theme-toggle__button.light .theme-toggle__icon {
+  transform: rotate(0deg);
+}
+
+.theme-toggle__button.dark .theme-toggle__icon {
+  transform: rotate(180deg);
+}
+
+// Responsive design
+@media (max-width: 480px) {
+  .theme-toggle {
+    &__label {
+      display: none;
+    }
+
+    &__button {
+      padding: 8px;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      justify-content: center;
+    }
+  }
+}

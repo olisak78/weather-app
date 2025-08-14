@@ -1,0 +1,12 @@
+{
+  "welcome": "ברוכים הבאים לחיפוש מיקומים",
+  "searchPlaceholder": "חפש מיקום...",
+  "selectedLocation": "מיקום נבחר:",
+  "noResults": "לא נמצאו מיקומים",
+  "loading": "טוען מיקומים...",
+  "error": "שגיאה בטעינת מיקומים. אנא נסה שוב.",
+  "lightTheme": "בהיר",
+  "darkTheme": "כהה",
+  "language": "שפה",
+  "code": "קוד"
+}
