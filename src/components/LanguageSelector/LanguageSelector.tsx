@@ -26,7 +26,6 @@ const LanguageSelector: React.FC = () => {
 
   return (
     <div className='language-selector'>
-      <span className='language-selector__label'>{t('language')}:</span>
       <div className='language-selector__options'>
         {languages.map((lang) => (
           <button

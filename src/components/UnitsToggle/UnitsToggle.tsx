@@ -2,6 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAppSelector, useAppDispatch } from '../../hooks';
 import { toggleUnits } from '../../store/slices/appSlice';
+import { RiCelsiusFill, RiFahrenheitFill } from 'react-icons/ri';
 import './UnitsToggle.scss';
 
 const UnitsToggle: React.FC = () => {
@@ -15,7 +16,6 @@ const UnitsToggle: React.FC = () => {
 
   return (
     <div className='units-toggle'>
-      <span className='units-toggle__label'>{t('units')}:</span>
       <button
         className={`units-toggle__button ${units}`}
         onClick={handleToggle}
@@ -26,7 +26,9 @@ const UnitsToggle: React.FC = () => {
         <div className='units-toggle__track'>
           <div className='units-toggle__slider'>
             <span className='units-toggle__text'>
-              {units === 'metric' ? t('metric') : t('imperial')}
+              {units === 'metric'
+                ? (RiCelsiusFill as any)({})
+                : (RiFahrenheitFill as any)({})}
             </span>
           </div>
         </div>
