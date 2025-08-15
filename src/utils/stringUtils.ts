@@ -1,54 +1,131 @@
-/**
- * Converts a string to title case (first letter of each word capitalized)
- * Handles special cases for common location prefixes and suffixes
- */
-export const toTitleCase = (str: string): string => {
-  if (!str) return '';
-
-  return str
-    .toLowerCase()
-    .split(' ')
-    .map((word, index) => {
-      // Remove extra whitespace
-      word = word.trim();
-      if (!word) return '';
-
-      // Default: capitalize first letter, lowercase the rest
-      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-    })
-    .filter((word) => word.length > 0) // Remove empty strings
-    .join(' ')
-    .trim();
-};
+// src/utils/stringUtils.ts
 
 /**
- * Formats location name based on language
- * English: Converts from ALL CAPS to Title Case
- * Hebrew: Returns as-is (no formatting needed)
+ * Formats English location names to proper case (first letter capitalized, rest lowercase)
+ * Examples: "TEL AVIV" -> "Tel Aviv", "ELAT" -> "Elat", "BEN GURION" -> "Ben Gurion"
  */
-export const formatLocationName = (
-  name: string,
-  language: 'en' | 'he'
-): string => {
-  if (!name) return '';
-
-  if (language === 'he') {
-    // Hebrew names are already properly formatted
-    return name.trim();
+export function formatEnglishLocationName(name: string): string {
+  if (!name || typeof name !== 'string') {
+    return '';
   }
 
-  // English names need title case formatting
-  return toTitleCase(name.trim());
-};
+  return name
+    .toLowerCase()
+    .split(' ')
+    .map((word) => {
+      if (word.length === 0) return word;
+      return word.charAt(0).toUpperCase() + word.slice(1);
+    })
+    .join(' ');
+}
 
 /**
- * Gets the display name for a location in the specified language with proper formatting
+ * Get display name for a location based on language preference
+ * Always formats English names to proper case
  */
-export const getLocationDisplayName = (
-  location: { city_name_en: string; city_name_he: string },
-  language: 'en' | 'he'
-): string => {
-  const name =
-    language === 'he' ? location.city_name_he : location.city_name_en;
-  return formatLocationName(name, language);
-};
+export function getLocationDisplayName(
+  location: any,
+  language: 'en' | 'he' = 'en'
+): string {
+  if (!location) return '';
+
+  // Handle both old and new location structure
+  const hebrewName = location.name_in_hebrew || location.city_name_he || '';
+  const englishName = location.name_in_english || location.city_name_en || '';
+
+  if (language === 'he') {
+    return hebrewName || formatEnglishLocationName(englishName);
+  } else {
+    return formatEnglishLocationName(englishName) || hebrewName;
+  }
+}
+
+/**
+ * Get secondary name (opposite language) for display
+ * Always formats English names to proper case
+ */
+export function getSecondaryLocationName(
+  location: any,
+  language: 'en' | 'he' = 'en'
+): string {
+  if (!location) return '';
+
+  // Handle both old and new location structure
+  const hebrewName = location.name_in_hebrew || location.city_name_he || '';
+  const englishName = location.name_in_english || location.city_name_en || '';
+
+  if (language === 'he') {
+    const formattedEnglish = formatEnglishLocationName(englishName);
+    return formattedEnglish !== hebrewName ? formattedEnglish : '';
+  } else {
+    const formattedEnglish = formatEnglishLocationName(englishName);
+    return hebrewName !== formattedEnglish ? hebrewName : '';
+  }
+}
+
+/**
+ * Format location name for weather API (always English, properly formatted)
+ */
+export function formatLocationNameForWeatherAPI(location: any): string {
+  if (!location) return '';
+
+  const englishName = location.name_in_english || location.city_name_en || '';
+  return formatEnglishLocationName(englishName);
+}
+
+/**
+ * Legacy function for backward compatibility
+ * @deprecated Use getLocationDisplayName instead
+ */
+export function formatLocationName(name: string, language: string): string {
+  console.warn(
+    'formatLocationName is deprecated. Use getLocationDisplayName instead.'
+  );
+  return formatEnglishLocationName(name);
+}
+
+/**
+ * Normalize search terms for better matching
+ */
+export function normalizeSearchTerm(term: string): string {
+  return term.toLowerCase().trim().replace(/\s+/g, ' ');
+}
+
+/**
+ * Check if a location name matches a search term (case-insensitive)
+ */
+export function locationNameMatches(
+  locationName: string,
+  searchTerm: string
+): boolean {
+  if (!locationName || !searchTerm) return false;
+
+  const normalizedLocation = normalizeSearchTerm(locationName);
+  const normalizedSearch = normalizeSearchTerm(searchTerm);
+
+  return normalizedLocation.includes(normalizedSearch);
+}
+
+/**
+ * Get all searchable names for a location (for multi-language search)
+ */
+export function getSearchableLocationNames(location: any): string[] {
+  const names: string[] = [];
+
+  // Hebrew name
+  if (location.name_in_hebrew || location.city_name_he) {
+    names.push(location.name_in_hebrew || location.city_name_he);
+  }
+
+  // English name (formatted)
+  if (location.name_in_english || location.city_name_en) {
+    const englishName = location.name_in_english || location.city_name_en;
+    names.push(formatEnglishLocationName(englishName));
+    // Also add original case for matching
+    if (englishName !== formatEnglishLocationName(englishName)) {
+      names.push(englishName);
+    }
+  }
+
+  return names.filter(Boolean); // Remove empty strings
+}

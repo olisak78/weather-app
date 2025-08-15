@@ -1,7 +1,10 @@
+// src/types/index.ts
 export interface Location {
-  city_code: number;
-  city_name_he: string;
-  city_name_en: string;
+  symbol_number: number;
+  name_in_hebrew: string;
+  name_in_english: string;
+  X: number; // ITM X coordinate
+  Y: number; // ITM Y coordinate
 }
 
 export interface CachedLocationData {
@@ -21,22 +24,16 @@ export interface ApiResponse {
   result: {
     include_total: boolean;
     limit: number;
-    q: any;
     records_format: string;
     resource_id: string;
     total_estimation_threshold: null;
     records: Array<{
       _id: number;
-      city_code: number;
-      city_name_he: string;
-      city_name_en: string;
-      region_code: number;
-      region_name: string;
-      PIBA_bureau_code: number;
-      PIBA_bureau_name: string;
-      Regional_Council_code: number;
-      Regional_Council_name: string;
-      'rank city_name_en': number;
+      symbol_number: number;
+      name_in_hebrew: string;
+      name_in_english: string;
+      X: number;
+      Y: number;
     }>;
   };
 }
@@ -108,6 +105,13 @@ export interface WeatherApiResponse {
     diff_rad: number;
     dni: number;
     gti: number;
+  };
+}
+
+export interface WeatherApiError {
+  error: {
+    code: number;
+    message: string;
   };
 }
 

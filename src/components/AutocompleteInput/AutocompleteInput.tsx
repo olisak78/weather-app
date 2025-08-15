@@ -1,9 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+// src/components/AutocompleteInput/AutocompleteInput.tsx
+import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FaSearch } from 'react-icons/fa';
 import { useAppSelector } from '../../hooks';
 import { Location } from '../../types';
-import { getLocationDisplayName } from '../../utils/stringUtils';
 import './AutocompleteInput.scss';
 
 interface AutocompleteInputProps {
@@ -13,148 +12,170 @@ interface AutocompleteInputProps {
 const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
   onLocationSelect,
 }) => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { locations } = useAppSelector((state) => state.location);
+  const { language } = useAppSelector((state) => state.app);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filteredLocations, setFilteredLocations] = useState<Location[]>([]);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [highlightedIndex, setHighlightedIndex] = useState(-1);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(-1);
 
-  const currentLanguage = i18n.language as 'en' | 'he';
-  const isRTL = currentLanguage === 'he';
+  // Filter locations based on search term - allow searching in any language
+  const filteredLocations = useMemo(() => {
+    if (!searchTerm.trim()) return [];
 
-  useEffect(() => {
-    if (searchTerm.trim() === '') {
-      setFilteredLocations([]);
-      setIsDropdownOpen(false);
-      return;
+    const searchTermLower = searchTerm.toLowerCase().trim();
+
+    return locations
+      .filter((location) => {
+        // Search in Hebrew name
+        const hebrewMatch = location.name_in_hebrew
+          .toLowerCase()
+          .includes(searchTermLower);
+
+        // Search in English name
+        const englishMatch = location.name_in_english
+          .toLowerCase()
+          .includes(searchTermLower);
+        return hebrewMatch || englishMatch;
+      })
+      .slice(0, 50); // Limit results for performance
+  }, [searchTerm, locations]);
+
+  // Get display name based on current language
+  const getDisplayName = (location: Location): string => {
+    if (language === 'he') {
+      return location.name_in_hebrew || location.name_in_english;
     }
-
-    const nameField =
-      currentLanguage === 'he' ? 'city_name_he' : 'city_name_en';
-    const filtered = locations.filter((location) =>
-      location[nameField].toLowerCase().startsWith(searchTerm.toLowerCase())
-    );
-
-    setFilteredLocations(filtered);
-    setIsDropdownOpen(filtered.length > 0);
-    setHighlightedIndex(-1);
-  }, [searchTerm, locations, currentLanguage]);
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value);
+    return location.name_in_english || location.name_in_hebrew;
   };
 
-  const handleLocationSelect = (location: Location) => {
-    const locationName = getLocationDisplayName(location, currentLanguage);
-    setSearchTerm(locationName);
-    setIsDropdownOpen(false);
+  // Get secondary name for display (opposite language)
+  const getSecondaryName = (location: Location): string => {
+    if (language === 'he') {
+      return location.name_in_english !== location.name_in_hebrew
+        ? location.name_in_english
+        : '';
+    }
+    return location.name_in_hebrew !== location.name_in_english
+      ? location.name_in_hebrew
+      : '';
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    setIsOpen(value.trim().length > 0);
+    setSelectedIndex(-1);
+  };
+
+  const handleLocationClick = (location: Location) => {
+    setSearchTerm(getDisplayName(location));
+    setIsOpen(false);
+    setSelectedIndex(-1);
     onLocationSelect(location);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (!isDropdownOpen) return;
+    if (!isOpen || filteredLocations.length === 0) return;
 
     switch (e.key) {
       case 'ArrowDown':
         e.preventDefault();
-        setHighlightedIndex((prev) =>
-          prev < filteredLocations.length - 1 ? prev + 1 : prev
+        setSelectedIndex((prev) =>
+          prev < filteredLocations.length - 1 ? prev + 1 : 0
         );
         break;
       case 'ArrowUp':
         e.preventDefault();
-        setHighlightedIndex((prev) => (prev > 0 ? prev - 1 : prev));
+        setSelectedIndex((prev) =>
+          prev > 0 ? prev - 1 : filteredLocations.length - 1
+        );
         break;
       case 'Enter':
         e.preventDefault();
-        if (
-          highlightedIndex >= 0 &&
-          highlightedIndex < filteredLocations.length
-        ) {
-          handleLocationSelect(filteredLocations[highlightedIndex]);
+        if (selectedIndex >= 0 && selectedIndex < filteredLocations.length) {
+          handleLocationClick(filteredLocations[selectedIndex]);
         }
         break;
       case 'Escape':
-        setIsDropdownOpen(false);
-        setHighlightedIndex(-1);
+        setIsOpen(false);
+        setSelectedIndex(-1);
         break;
     }
   };
 
-  const handleBlur = (e: React.FocusEvent) => {
-    // Delay closing to allow for click events on dropdown items
-    setTimeout(() => {
-      if (!dropdownRef.current?.contains(document.activeElement)) {
-        setIsDropdownOpen(false);
-      }
-    }, 150);
+  const handleBlur = () => {
+    // Delay closing to allow for clicks on options
+    setTimeout(() => setIsOpen(false), 150);
   };
 
-  const handleSearchIconClick = () => {
-    // Currently does nothing as requested
-    // Can be implemented later for specific search functionality
-  };
-
-  // Scroll highlighted item into view
-  useEffect(() => {
-    if (highlightedIndex >= 0 && dropdownRef.current) {
-      const highlightedElement = dropdownRef.current.querySelector(
-        `.autocomplete__item:nth-child(${highlightedIndex + 1})`
-      ) as HTMLElement;
-
-      if (highlightedElement) {
-        highlightedElement.scrollIntoView({
-          block: 'nearest',
-          behavior: 'smooth',
-        });
-      }
+  const handleFocus = () => {
+    if (searchTerm.trim()) {
+      setIsOpen(true);
     }
-  }, [highlightedIndex]);
+  };
+
+  // Reset when locations change (e.g., after refresh)
+  useEffect(() => {
+    if (locations.length === 0) {
+      setSearchTerm('');
+      setIsOpen(false);
+      setSelectedIndex(-1);
+    }
+  }, [locations]);
 
   return (
-    <div className={`autocomplete ${isRTL ? 'rtl' : 'ltr'}`}>
-      <div className='autocomplete__input-wrapper'>
+    <div className='autocomplete-input'>
+      <div className='autocomplete-input__wrapper'>
         <input
-          ref={inputRef}
           type='text'
+          className='autocomplete-input__field'
+          placeholder={t('searchPlaceholder')}
           value={searchTerm}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
           onBlur={handleBlur}
-          placeholder={t('searchPlaceholder')}
-          className='autocomplete__input'
+          onFocus={handleFocus}
+          autoComplete='off'
         />
-        <button
-          type='button'
-          className='autocomplete__search-icon'
-          onClick={handleSearchIconClick}
-          aria-label='Search'
-        >
-          {(FaSearch as any)({})}
-        </button>
-      </div>
 
-      {isDropdownOpen && (
-        <div ref={dropdownRef} className='autocomplete__dropdown'>
-          <div className='autocomplete__list'>
-            {filteredLocations.map((location, index) => (
-              <div
-                key={location.city_code}
-                className={`autocomplete__item ${
-                  index === highlightedIndex ? 'highlighted' : ''
-                }`}
-                onClick={() => handleLocationSelect(location)}
-                onMouseEnter={() => setHighlightedIndex(index)}
-              >
-                {getLocationDisplayName(location, currentLanguage)}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+        {isOpen && filteredLocations.length > 0 && (
+          <ul className='autocomplete-input__dropdown'>
+            {filteredLocations.map((location, index) => {
+              const displayName = getDisplayName(location);
+              const secondaryName = getSecondaryName(location);
+
+              return (
+                <li
+                  key={location.symbol_number}
+                  className={`autocomplete-input__option ${
+                    index === selectedIndex
+                      ? 'autocomplete-input__option--selected'
+                      : ''
+                  }`}
+                  onClick={() => handleLocationClick(location)}
+                  onMouseEnter={() => setSelectedIndex(index)}
+                >
+                  <div className='autocomplete-input__option-content'>
+                    <div className='autocomplete-input__primary-name'>
+                      {displayName}
+                    </div>
+                    {secondaryName && (
+                      <div className='autocomplete-input__secondary-name'>
+                        {secondaryName}
+                      </div>
+                    )}
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+
+        {isOpen && searchTerm.trim() && filteredLocations.length === 0 && (
+          <div className='autocomplete-input__no-results'>{t('noResults')}</div>
+        )}
+      </div>
     </div>
   );
 };

@@ -7,7 +7,6 @@ import {
   fetchWeatherData,
 } from '../../store/slices/weatherSlice';
 import { Location } from '../../types';
-import { formatLocationName } from '../../utils/stringUtils';
 import AutocompleteInput from '../../components/AutocompleteInput/AutocompleteInput';
 import ThemeToggle from '../../components/ThemeToggle/ThemeToggle';
 import LanguageSelector from '../../components/LanguageSelector/LanguageSelector';
@@ -26,6 +25,7 @@ const HomePage: React.FC = () => {
     weatherData,
     loading: weatherLoading,
     error: weatherError,
+    usedCoordinates,
   } = useAppSelector((state) => state.weather);
   const { language } = useAppSelector((state) => state.app);
 
@@ -35,19 +35,20 @@ const HomePage: React.FC = () => {
 
   const handleLocationSelect = (location: Location) => {
     dispatch(setSelectedLocation(location));
-    const rawLocationName =
-      language === 'he' ? location.city_name_he : location.city_name_en;
-    // Use the formatted location name for weather API query
-    const locationName = formatLocationName(rawLocationName, language);
-    dispatch(fetchWeatherData(locationName));
+
+    // Always use the enhanced fetchWeatherData with location object and language
+    dispatch(fetchWeatherData({ location, language }));
   };
 
   const handleRefreshData = () => {
     dispatch(fetchLocations(true));
   };
 
-  console.log('Weather data before rendering:', weatherData);
-  console.log('Weather data temp_c:', weatherData?.temp_c);
+  const handleRetryWeather = () => {
+    if (selectedLocation) {
+      dispatch(fetchWeatherData({ location: selectedLocation, language }));
+    }
+  };
 
   return (
     <div className='home-page'>
@@ -103,26 +104,26 @@ const HomePage: React.FC = () => {
                   </div>
                   <button
                     className='home-page__retry-button'
-                    onClick={() => {
-                      const rawLocationName =
-                        language === 'he'
-                          ? selectedLocation.city_name_he
-                          : selectedLocation.city_name_en;
-                      const locationName = formatLocationName(
-                        rawLocationName,
-                        language
-                      );
-                      dispatch(fetchWeatherData(locationName));
-                    }}
-                    disabled={weatherLoading}
+                    onClick={handleRetryWeather}
                   >
                     {t('retryButton')}
                   </button>
                 </div>
               )}
 
-              {!weatherLoading && !weatherError && weatherData && (
-                <WeatherDisplay weatherData={weatherData} loading={false} />
+              {weatherData && !weatherLoading && !weatherError && (
+                <div className='home-page__weather-container'>
+                  {usedCoordinates && (
+                    <div className='home-page__coordinate-notice'>
+                      <small>
+                        {language === 'he'
+                          ? 'נתוני מזג האוויר התקבלו באמצעות קואורדינטות'
+                          : 'Weather data retrieved using coordinates'}
+                      </small>
+                    </div>
+                  )}
+                  <WeatherDisplay weatherData={weatherData} loading={false} />
+                </div>
               )}
             </div>
           )}

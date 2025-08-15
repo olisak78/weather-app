@@ -1,123 +1,107 @@
 import { Location, CachedLocationData } from '../types';
 
-const STORAGE_KEY = 'locations_data';
-const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+const CACHE_KEY = 'israeli_locations_cache';
+const CACHE_DURATION_MS = 24 * 60 * 60 * 1000; // 24 hours
 
-/**
- * Checks if the cached data is still valid (less than 24 hours old)
- */
-export const isCacheValid = (timestamp: number): boolean => {
-  const now = Date.now();
-  return now - timestamp < CACHE_DURATION;
-};
-
-/**
- * Retrieves cached location data from localStorage
- * Returns null if no data exists or if data is expired
- */
-export const getCachedLocations = (): Location[] | null => {
+export function setCachedLocations(locations: Location[]): void {
   try {
-    const storedData = localStorage.getItem(STORAGE_KEY);
+    const cacheData: CachedLocationData = {
+      locations,
+      timestamp: Date.now(),
+    };
+    localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
+    console.log(`Cached ${locations.length} locations with new structure`);
+  } catch (error) {
+    console.error('Error caching locations:', error);
+  }
+}
 
-    if (!storedData) {
+export function getCachedLocations(): Location[] | null {
+  try {
+    const cached = localStorage.getItem(CACHE_KEY);
+    if (!cached) {
       console.log('No cached location data found');
       return null;
     }
 
-    const cachedData: CachedLocationData = JSON.parse(storedData);
+    const cacheData: CachedLocationData = JSON.parse(cached);
 
-    // Check if the cached data structure is valid
-    if (!cachedData.locations || !cachedData.timestamp) {
-      console.log('Invalid cached data structure, clearing cache');
-      localStorage.removeItem(STORAGE_KEY);
+    // Check if cache is expired
+    const isExpired = Date.now() - cacheData.timestamp > CACHE_DURATION_MS;
+    if (isExpired) {
+      console.log('Cached location data is expired, removing...');
+      localStorage.removeItem(CACHE_KEY);
       return null;
     }
 
-    // Check if cache is still valid
-    if (!isCacheValid(cachedData.timestamp)) {
-      console.log(
-        'Cached data is expired (older than 24 hours), clearing cache'
-      );
-      localStorage.removeItem(STORAGE_KEY);
+    // Validate the structure of cached data (migration check)
+    if (!cacheData.locations || !Array.isArray(cacheData.locations)) {
+      console.log('Invalid cached data structure, removing...');
+      localStorage.removeItem(CACHE_KEY);
       return null;
     }
 
-    console.log('Using valid cached location data');
-    return cachedData.locations;
+    // Check if the first location has the new structure
+    const firstLocation = cacheData.locations[0];
+    if (
+      !firstLocation ||
+      typeof firstLocation.symbol_number === 'undefined' ||
+      typeof firstLocation.name_in_hebrew === 'undefined' ||
+      typeof firstLocation.name_in_english === 'undefined' ||
+      typeof firstLocation.X === 'undefined' ||
+      typeof firstLocation.Y === 'undefined'
+    ) {
+      console.log('Cached data uses old structure, removing...');
+      localStorage.removeItem(CACHE_KEY);
+      return null;
+    }
+
+    console.log(
+      `Retrieved ${cacheData.locations.length} cached locations with new structure`
+    );
+    return cacheData.locations;
   } catch (error) {
-    console.error('Error reading cached location data:', error);
-    localStorage.removeItem(STORAGE_KEY);
+    console.error('Error retrieving cached locations:', error);
+    localStorage.removeItem(CACHE_KEY);
     return null;
   }
-};
+}
 
-/**
- * Saves location data to localStorage with current timestamp
- */
-export const setCachedLocations = (locations: Location[]): void => {
+export function clearCachedLocations(): void {
   try {
-    const cachedData: CachedLocationData = {
-      locations,
-      timestamp: Date.now(),
-    };
-
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(cachedData));
-    console.log(
-      'Location data cached successfully with timestamp:',
-      new Date(cachedData.timestamp).toISOString()
-    );
+    localStorage.removeItem(CACHE_KEY);
+    console.log('Cleared cached location data');
   } catch (error) {
-    console.error('Error saving location data to cache:', error);
+    console.error('Error clearing cached locations:', error);
   }
-};
+}
 
-/**
- * Clears all cached location data
- */
-export const clearCachedLocations = (): void => {
-  try {
-    localStorage.removeItem(STORAGE_KEY);
-    console.log('Cached location data cleared');
-  } catch (error) {
-    console.error('Error clearing cached location data:', error);
-  }
-};
-
-/**
- * Gets information about the current cache status
- */
-export const getCacheInfo = (): {
+export function getCacheInfo(): {
   hasCache: boolean;
-  isValid: boolean;
-  age: number | null;
-  expiresAt: Date | null;
-} => {
+  timestamp?: number;
+  age?: number;
+  isExpired?: boolean;
+  count?: number;
+} {
   try {
-    const storedData = localStorage.getItem(STORAGE_KEY);
-
-    if (!storedData) {
-      return { hasCache: false, isValid: false, age: null, expiresAt: null };
+    const cached = localStorage.getItem(CACHE_KEY);
+    if (!cached) {
+      return { hasCache: false };
     }
 
-    const cachedData: CachedLocationData = JSON.parse(storedData);
-
-    if (!cachedData.timestamp) {
-      return { hasCache: true, isValid: false, age: null, expiresAt: null };
-    }
-
-    const now = Date.now();
-    const age = now - cachedData.timestamp;
-    const isValid = age < CACHE_DURATION;
-    const expiresAt = new Date(cachedData.timestamp + CACHE_DURATION);
+    const cacheData: CachedLocationData = JSON.parse(cached);
+    const age = Date.now() - cacheData.timestamp;
+    const isExpired = age > CACHE_DURATION_MS;
 
     return {
       hasCache: true,
-      isValid,
+      timestamp: cacheData.timestamp,
       age,
-      expiresAt,
+      isExpired,
+      count: cacheData.locations?.length || 0,
     };
   } catch (error) {
     console.error('Error getting cache info:', error);
-    return { hasCache: false, isValid: false, age: null, expiresAt: null };
+    return { hasCache: false };
   }
-};
+}

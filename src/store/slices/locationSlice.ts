@@ -1,6 +1,8 @@
+// src/store/slices/locationSlice.ts
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import { Location, ApiResponse, FetchLocationsResponse } from '../../types';
 import { getCachedLocations, setCachedLocations } from '../../utils/cacheUtils';
+import { formatEnglishLocationName } from '../../utils/stringUtils';
 
 interface LocationState {
   locations: Location[];
@@ -17,6 +19,10 @@ const initialState: LocationState = {
   lastUpdated: null,
   cacheStatus: 'none',
 };
+
+// Updated API URL for locations with coordinates
+const LOCATIONS_API_URL =
+  'https://data.gov.il/api/3/action/datastore_search?resource_id=e9701dcb-9f1c-43bb-bd44-eb380ade542f';
 
 // Async thunk for fetching locations with improved caching logic
 export const fetchLocations = createAsyncThunk<
@@ -41,10 +47,8 @@ export const fetchLocations = createAsyncThunk<
 
       console.log('Fetching fresh location data from API...');
 
-      // Fetch fresh data from API
-      const response = await fetch(
-        'https://data.gov.il/api/3/action/datastore_search?resource_id=8f714b6f-c35c-4b40-a0e7-547b675eee0e'
-      );
+      // Fetch fresh data from API with new URL
+      const response = await fetch(LOCATIONS_API_URL);
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -60,17 +64,36 @@ export const fetchLocations = createAsyncThunk<
         throw new Error('Invalid API response structure');
       }
 
-      // Transform the data to keep only required fields
-      const locations: Location[] = data.result.records.map((record) => ({
-        city_code: record.city_code,
-        city_name_he: record.city_name_he?.trim() || '',
-        city_name_en: record.city_name_en?.trim() || '',
-      }));
+      // Transform the data to keep only required fields with new structure and format English names
+      const locations: Location[] = data.result.records
+        .filter((record) => {
+          // Filter out records with missing essential data
+          return (
+            record.name_in_hebrew &&
+            record.name_in_english &&
+            typeof record.X === 'number' &&
+            typeof record.Y === 'number'
+          );
+        })
+        .map((record) => ({
+          symbol_number: record.symbol_number,
+          name_in_hebrew: record.name_in_hebrew?.trim() || '',
+          // Format English names to proper case (first letter capitalized, rest lowercase)
+          name_in_english: formatEnglishLocationName(
+            record.name_in_english?.trim() || ''
+          ),
+          X: record.X,
+          Y: record.Y,
+        }));
 
       // Validate that we have data
       if (locations.length === 0) {
         throw new Error('No location data received from API');
       }
+
+      console.log(
+        `Loaded ${locations.length} locations from API with formatted English names`
+      );
 
       // Cache the fresh data
       setCachedLocations(locations);
@@ -110,10 +133,8 @@ export const refreshLocations = createAsyncThunk<
   try {
     console.log('Force refreshing location data...');
 
-    // Fetch fresh data from API
-    const response = await fetch(
-      'https://data.gov.il/api/3/action/datastore_search?resource_id=8f714b6f-c35c-4b40-a0e7-547b675eee0e'
-    );
+    // Fetch fresh data from API with new URL
+    const response = await fetch(LOCATIONS_API_URL);
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -129,17 +150,36 @@ export const refreshLocations = createAsyncThunk<
       throw new Error('Invalid API response structure');
     }
 
-    // Transform the data to keep only required fields
-    const locations: Location[] = data.result.records.map((record) => ({
-      city_code: record.city_code,
-      city_name_he: record.city_name_he?.trim() || '',
-      city_name_en: record.city_name_en?.trim() || '',
-    }));
+    // Transform the data to keep only required fields with new structure and format English names
+    const locations: Location[] = data.result.records
+      .filter((record) => {
+        // Filter out records with missing essential data
+        return (
+          record.name_in_hebrew &&
+          record.name_in_english &&
+          typeof record.X === 'number' &&
+          typeof record.Y === 'number'
+        );
+      })
+      .map((record) => ({
+        symbol_number: record.symbol_number,
+        name_in_hebrew: record.name_in_hebrew?.trim() || '',
+        // Format English names to proper case (first letter capitalized, rest lowercase)
+        name_in_english: formatEnglishLocationName(
+          record.name_in_english?.trim() || ''
+        ),
+        X: record.X,
+        Y: record.Y,
+      }));
 
     // Validate that we have data
     if (locations.length === 0) {
       throw new Error('No location data received from API');
     }
+
+    console.log(
+      `Refreshed ${locations.length} locations from API with formatted English names`
+    );
 
     // Cache the fresh data
     setCachedLocations(locations);
