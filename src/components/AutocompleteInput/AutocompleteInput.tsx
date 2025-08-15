@@ -70,7 +70,7 @@ const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
   };
 
   const handleLocationClick = (location: Location) => {
-    setSearchTerm(getDisplayName(location));
+    setSearchTerm('');
     setIsOpen(false);
     setSelectedIndex(-1);
     onLocationSelect(location);
