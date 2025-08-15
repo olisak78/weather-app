@@ -147,7 +147,7 @@ const WeatherDisplay: React.FC<WeatherDisplayProps> = ({
         <div className='weather-display__details'>
           <div className='weather-display__detail-item'>
             <span className='weather-display__detail-label'>
-              {t('humidity')}:
+              {t('humidity')}
             </span>
             <span className='weather-display__detail-value'>
               {weatherData.humidity ?? 0}%
@@ -155,7 +155,7 @@ const WeatherDisplay: React.FC<WeatherDisplayProps> = ({
           </div>
 
           <div className='weather-display__detail-item'>
-            <span className='weather-display__detail-label'>{t('wind')}:</span>
+            <span className='weather-display__detail-label'>{t('wind')}</span>
             <span className='weather-display__detail-value'>
               {windSpeed.value} {windSpeed.unit} {weatherData.wind_dir || 'N/A'}
             </span>
@@ -163,7 +163,7 @@ const WeatherDisplay: React.FC<WeatherDisplayProps> = ({
 
           <div className='weather-display__detail-item'>
             <span className='weather-display__detail-label'>
-              {t('pressure')}:
+              {t('pressure')}
             </span>
             <span className='weather-display__detail-value'>
               {pressure.value} {pressure.unit}
@@ -172,7 +172,7 @@ const WeatherDisplay: React.FC<WeatherDisplayProps> = ({
 
           <div className='weather-display__detail-item'>
             <span className='weather-display__detail-label'>
-              {t('visibility')}:
+              {t('visibility')}
             </span>
             <span className='weather-display__detail-value'>
               {visibility.value} {visibility.unit}
