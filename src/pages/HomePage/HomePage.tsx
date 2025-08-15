@@ -46,6 +46,9 @@ const HomePage: React.FC = () => {
     dispatch(fetchLocations(true));
   };
 
+  console.log('Weather data before rendering:', weatherData);
+  console.log('Weather data temp_c:', weatherData?.temp_c);
+
   return (
     <div className='home-page'>
       <header className='home-page__header'>

@@ -16,6 +16,20 @@ const WeatherDisplay: React.FC<WeatherDisplayProps> = ({
   const { t } = useTranslation();
   const { units, language } = useAppSelector((state) => state.app);
 
+  // Add defensive checks
+  if (
+    !weatherData ||
+    weatherData.temp_c === null ||
+    weatherData.temp_c === undefined
+  ) {
+    return (
+      <div className='weather-display weather-display--loading'>
+        <div className='weather-display__spinner'></div>
+        <p>{t('loadingWeather')}</p>
+      </div>
+    );
+  }
+
   const getTemperatureColor = (temp: number, isMetric: boolean): string => {
     // Convert to Celsius for consistent color coding
     const tempC = isMetric ? temp : ((temp - 32) * 5) / 9;
@@ -33,7 +47,10 @@ const WeatherDisplay: React.FC<WeatherDisplayProps> = ({
     colorClass: string;
   } => {
     const isMetric = units === 'metric';
-    const temp = isMetric ? weatherData.temp_c : weatherData.temp_f;
+    // Add null checks here too
+    const tempC = weatherData.temp_c ?? 0;
+    const tempF = weatherData.temp_f ?? 32;
+    const temp = isMetric ? tempC : tempF;
     const unit = isMetric ? '°C' : '°F';
     const colorClass = getTemperatureColor(temp, isMetric);
 
@@ -42,7 +59,9 @@ const WeatherDisplay: React.FC<WeatherDisplayProps> = ({
 
   const formatWindSpeed = (): { value: number; unit: string } => {
     const isMetric = units === 'metric';
-    const speed = isMetric ? weatherData.wind_kph : weatherData.wind_mph;
+    const windKph = weatherData.wind_kph ?? 0;
+    const windMph = weatherData.wind_mph ?? 0;
+    const speed = isMetric ? windKph : windMph;
     const unit = isMetric ? t('kph') : t('mph');
 
     return { value: Math.round(speed), unit };
@@ -50,9 +69,9 @@ const WeatherDisplay: React.FC<WeatherDisplayProps> = ({
 
   const formatPressure = (): { value: number; unit: string } => {
     const isMetric = units === 'metric';
-    const pressure = isMetric
-      ? weatherData.pressure_mb
-      : weatherData.pressure_in;
+    const pressureMb = weatherData.pressure_mb ?? 0;
+    const pressureIn = weatherData.pressure_in ?? 0;
+    const pressure = isMetric ? pressureMb : pressureIn;
     const unit = isMetric ? t('mb') : t('in');
 
     return {
@@ -63,7 +82,9 @@ const WeatherDisplay: React.FC<WeatherDisplayProps> = ({
 
   const formatVisibility = (): { value: number; unit: string } => {
     const isMetric = units === 'metric';
-    const visibility = isMetric ? weatherData.vis_km : weatherData.vis_miles;
+    const visKm = weatherData.vis_km ?? 0;
+    const visMiles = weatherData.vis_miles ?? 0;
+    const visibility = isMetric ? visKm : visMiles;
     const unit = isMetric ? t('km') : t('miles');
 
     return { value: Math.round(visibility), unit };
@@ -87,13 +108,16 @@ const WeatherDisplay: React.FC<WeatherDisplayProps> = ({
     <div className='weather-display'>
       <div className='weather-display__header'>
         <h2 className='weather-display__location'>
-          {weatherData.location.name}, {weatherData.location.country}
+          {weatherData.location?.name || 'Unknown'},{' '}
+          {weatherData.location?.country || 'Unknown'}
         </h2>
         <p className='weather-display__updated'>
           {t('lastUpdated')}:{' '}
-          {new Date(weatherData.last_updated).toLocaleString(
-            language === 'he' ? 'he-IL' : 'en-US'
-          )}
+          {weatherData.last_updated
+            ? new Date(weatherData.last_updated).toLocaleString(
+                language === 'he' ? 'he-IL' : 'en-US'
+              )
+            : 'Unknown'}
         </p>
       </div>
 
@@ -110,12 +134,12 @@ const WeatherDisplay: React.FC<WeatherDisplayProps> = ({
 
           <div className='weather-display__condition'>
             <img
-              src={`https:${weatherData.condition.icon}`}
-              alt={weatherData.condition.text}
+              src={`https:${weatherData.condition?.icon || ''}`}
+              alt={weatherData.condition?.text || 'Weather condition'}
               className='weather-display__condition-icon'
             />
             <span className='weather-display__condition-text'>
-              {weatherData.condition.text}
+              {weatherData.condition?.text || 'Unknown'}
             </span>
           </div>
         </div>
@@ -126,14 +150,14 @@ const WeatherDisplay: React.FC<WeatherDisplayProps> = ({
               {t('humidity')}:
             </span>
             <span className='weather-display__detail-value'>
-              {weatherData.humidity}%
+              {weatherData.humidity ?? 0}%
             </span>
           </div>
 
           <div className='weather-display__detail-item'>
             <span className='weather-display__detail-label'>{t('wind')}:</span>
             <span className='weather-display__detail-value'>
-              {windSpeed.value} {windSpeed.unit} {weatherData.wind_dir}
+              {windSpeed.value} {windSpeed.unit} {weatherData.wind_dir || 'N/A'}
             </span>
           </div>
 
