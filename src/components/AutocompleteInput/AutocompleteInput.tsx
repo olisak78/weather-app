@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { FaSearch } from 'react-icons/fa';
 import { useAppSelector } from '../../hooks';
 import { Location } from '../../types';
 import { getLocationDisplayName } from '../../utils/stringUtils';
@@ -92,6 +93,11 @@ const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
     }, 150);
   };
 
+  const handleSearchIconClick = () => {
+    // Currently does nothing as requested
+    // Can be implemented later for specific search functionality
+  };
+
   // Scroll highlighted item into view
   useEffect(() => {
     if (highlightedIndex >= 0 && dropdownRef.current) {
@@ -110,16 +116,26 @@ const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
 
   return (
     <div className={`autocomplete ${isRTL ? 'rtl' : 'ltr'}`}>
-      <input
-        ref={inputRef}
-        type='text'
-        value={searchTerm}
-        onChange={handleInputChange}
-        onKeyDown={handleKeyDown}
-        onBlur={handleBlur}
-        placeholder={t('searchPlaceholder')}
-        className='autocomplete__input'
-      />
+      <div className='autocomplete__input-wrapper'>
+        <input
+          ref={inputRef}
+          type='text'
+          value={searchTerm}
+          onChange={handleInputChange}
+          onKeyDown={handleKeyDown}
+          onBlur={handleBlur}
+          placeholder={t('searchPlaceholder')}
+          className='autocomplete__input'
+        />
+        <button
+          type='button'
+          className='autocomplete__search-icon'
+          onClick={handleSearchIconClick}
+          aria-label='Search'
+        >
+          {(FaSearch as any)({})}
+        </button>
+      </div>
 
       {isDropdownOpen && (
         <div ref={dropdownRef} className='autocomplete__dropdown'>

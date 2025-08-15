@@ -42,28 +42,6 @@ const HomePage: React.FC = () => {
     return date.toLocaleString(language === 'he' ? 'he-IL' : 'en-US');
   };
 
-  const getCacheStatusMessage = () => {
-    const cacheInfo = getCacheInfo();
-
-    if (!cacheInfo.hasCache) {
-      return t('noCacheData');
-    }
-
-    if (!cacheInfo.isValid) {
-      return t('cacheExpired');
-    }
-
-    if (cacheInfo.age && cacheInfo.expiresAt) {
-      const hoursOld = Math.floor(cacheInfo.age / (1000 * 60 * 60));
-      const expiresAt = cacheInfo.expiresAt.toLocaleString(
-        language === 'he' ? 'he-IL' : 'en-US'
-      );
-      return t('cacheValid', { hours: hoursOld, expiresAt });
-    }
-
-    return t('cacheStatusUnknown');
-  };
-
   return (
     <div className='home-page'>
       <header className='home-page__header'>
@@ -99,33 +77,7 @@ const HomePage: React.FC = () => {
             )}
 
             {!loading && !error && (
-              <>
-                <AutocompleteInput onLocationSelect={handleLocationSelect} />
-
-                {/* Cache Status Info */}
-                <div className='home-page__cache-info'>
-                  <div className={`home-page__cache-status ${cacheStatus}`}>
-                    <span className='home-page__cache-indicator'></span>
-                    {getCacheStatusMessage()}
-                  </div>
-
-                  {lastUpdated && (
-                    <div className='home-page__last-updated'>
-                      {t('lastUpdated')}: {formatLastUpdated(lastUpdated)}
-                    </div>
-                  )}
-
-                  <button
-                    className='home-page__refresh-button'
-                    onClick={handleRefreshData}
-                    disabled={loading}
-                    title={t('refreshData')}
-                  >
-                    <span className='home-page__refresh-icon'>🔄</span>
-                    {t('refreshButton')}
-                  </button>
-                </div>
-              </>
+              <AutocompleteInput onLocationSelect={handleLocationSelect} />
             )}
           </div>
 
