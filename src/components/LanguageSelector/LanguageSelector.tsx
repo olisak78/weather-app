@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { useAppSelector, useAppDispatch } from '../../hooks';
 import { setLanguage } from '../../store/slices/appSlice';
 import { Language } from '../../types';
+import { ReactComponent as IL } from '../../styles/il.svg';
+import { ReactComponent as UK } from '../../styles/uk.svg';
 import './LanguageSelector.scss';
 
 const LanguageSelector: React.FC = () => {
@@ -32,7 +34,7 @@ const LanguageSelector: React.FC = () => {
         <div className='language-selector__track'>
           <div className='language-selector__slider'>
             <span className='language-selector__text'>
-              {language === 'en' ? '🇺🇸' : '🇮🇱'}
+              {language === 'en' ? <UK /> : <IL />}
             </span>
           </div>
         </div>

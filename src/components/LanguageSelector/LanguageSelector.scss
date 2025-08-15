@@ -15,7 +15,7 @@
     background: none;
     border: 2px solid var(--border-color);
     border-radius: 25px;
-    padding: 4px;
+    padding: 7px 4px 4px 4px;
     cursor: pointer;
     transition: all 0.3s ease;
     background-color: var(--button-bg);
@@ -39,7 +39,7 @@
     &.en {
       .language-selector__slider {
         transform: translateX(0);
-        background-color: var(--primary-color);
+        background-color: transparent;
         color: white;
       }
     }
@@ -47,7 +47,7 @@
     &.he {
       .language-selector__slider {
         transform: translateX(100%);
-        background-color: var(--primary-color);
+        background-color: transparent;
         color: white;
       }
     }
@@ -76,8 +76,6 @@
 
   &__text {
     white-space: nowrap;
-    text-transform: uppercase;
-    font-size: 14px; // Slightly larger for flag emojis
   }
 }
 
