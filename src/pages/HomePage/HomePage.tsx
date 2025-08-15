@@ -1,10 +1,11 @@
 import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useAppSelector, useAppDispatch } from '../../hooks';
+import { useAppSelector, useAppDispatch, useWeatherCache } from '../../hooks';
 import { fetchLocations } from '../../store/slices/locationSlice';
 import {
   setSelectedLocation,
   fetchWeatherData,
+  setCachedWeatherData,
 } from '../../store/slices/weatherSlice';
 import { Location } from '../../types';
 import AutocompleteInput from '../../components/AutocompleteInput/AutocompleteInput';
@@ -27,8 +28,12 @@ const HomePage: React.FC = () => {
     loading: weatherLoading,
     error: weatherError,
     usedCoordinates,
+    fromCache,
   } = useAppSelector((state) => state.weather);
   const { language } = useAppSelector((state) => state.app);
+
+  // Initialize weather cache hook
+  const { getCachedWeather, setCachedWeather } = useWeatherCache();
 
   useEffect(() => {
     dispatch(fetchLocations(false));
@@ -37,8 +42,37 @@ const HomePage: React.FC = () => {
   const handleLocationSelect = (location: Location) => {
     dispatch(setSelectedLocation(location));
 
-    // Always use the enhanced fetchWeatherData with location object and language
-    dispatch(fetchWeatherData({ location, language }));
+    // Check cache first
+    const cachedEntry = getCachedWeather(location);
+
+    if (cachedEntry) {
+      console.log(`Using cached weather data for ${location.name_in_english}`);
+      // Use cached data
+      dispatch(
+        setCachedWeatherData({
+          weatherData: cachedEntry.data,
+          usedCoordinates: cachedEntry.usedCoordinates,
+        })
+      );
+    } else {
+      console.log(
+        `No cached data for ${location.name_in_english}, fetching fresh data`
+      );
+      // Fetch fresh data and cache it
+      dispatch(fetchWeatherData({ location, language }))
+        .unwrap()
+        .then((result) => {
+          // Cache the fresh data
+          setCachedWeather(
+            location,
+            result.weatherData,
+            result.usedCoordinates
+          );
+        })
+        .catch((error) => {
+          console.error('Failed to fetch weather data:', error);
+        });
+    }
   };
 
   const handleRefreshData = () => {
@@ -47,7 +81,23 @@ const HomePage: React.FC = () => {
 
   const handleRetryWeather = () => {
     if (selectedLocation) {
-      dispatch(fetchWeatherData({ location: selectedLocation, language }));
+      // Force refresh - skip cache
+      console.log(
+        `Force refreshing weather for ${selectedLocation.name_in_english}`
+      );
+      dispatch(fetchWeatherData({ location: selectedLocation, language }))
+        .unwrap()
+        .then((result) => {
+          // Update cache with fresh data
+          setCachedWeather(
+            selectedLocation,
+            result.weatherData,
+            result.usedCoordinates
+          );
+        })
+        .catch((error) => {
+          console.error('Failed to retry weather data:', error);
+        });
     }
   };
 
@@ -113,6 +163,7 @@ const HomePage: React.FC = () => {
 
               {weatherData && !weatherLoading && !weatherError && (
                 <div className='home-page__weather-container'>
+                  {/* Coordinates indicator */}
                   {usedCoordinates && (
                     <div className='home-page__coordinate-notice'>
                       <small>
@@ -122,6 +173,7 @@ const HomePage: React.FC = () => {
                       </small>
                     </div>
                   )}
+
                   <WeatherDisplay weatherData={weatherData} loading={false} />
                 </div>
               )}

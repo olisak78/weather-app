@@ -17,6 +17,7 @@ interface WeatherState {
   loading: boolean;
   error: string | null;
   usedCoordinates: boolean; // Track if we used coordinates as fallback
+  fromCache: boolean; // Track if data came from cache
 }
 
 const initialState: WeatherState = {
@@ -25,6 +26,7 @@ const initialState: WeatherState = {
   loading: false,
   error: null,
   usedCoordinates: false,
+  fromCache: false,
 };
 
 const API_KEY = '33e82af910564a92a3591251251408';
@@ -261,11 +263,27 @@ const weatherSlice = createSlice({
       state.selectedLocation = null;
       state.weatherData = null;
       state.usedCoordinates = false;
+      state.fromCache = false;
     },
     clearWeatherData: (state) => {
       state.weatherData = null;
       state.error = null;
       state.usedCoordinates = false;
+      state.fromCache = false;
+    },
+    // New action to set cached weather data
+    setCachedWeatherData: (
+      state,
+      action: PayloadAction<{
+        weatherData: WeatherData;
+        usedCoordinates: boolean;
+      }>
+    ) => {
+      state.loading = false;
+      state.weatherData = action.payload.weatherData;
+      state.usedCoordinates = action.payload.usedCoordinates;
+      state.fromCache = true;
+      state.error = null;
     },
   },
   extraReducers: (builder) => {
@@ -275,38 +293,48 @@ const weatherSlice = createSlice({
         state.loading = true;
         state.error = null;
         state.usedCoordinates = false;
+        state.fromCache = false;
       })
       .addCase(fetchWeatherData.fulfilled, (state, action) => {
         state.loading = false;
         state.weatherData = action.payload.weatherData;
         state.usedCoordinates = action.payload.usedCoordinates;
+        state.fromCache = false;
       })
       .addCase(fetchWeatherData.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
         state.weatherData = null;
         state.usedCoordinates = false;
+        state.fromCache = false;
       })
       // Handle backwards compatible fetchWeatherDataByName
       .addCase(fetchWeatherDataByName.pending, (state) => {
         state.loading = true;
         state.error = null;
         state.usedCoordinates = false;
+        state.fromCache = false;
       })
       .addCase(fetchWeatherDataByName.fulfilled, (state, action) => {
         state.loading = false;
         state.weatherData = action.payload;
         state.usedCoordinates = false;
+        state.fromCache = false;
       })
       .addCase(fetchWeatherDataByName.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
         state.weatherData = null;
         state.usedCoordinates = false;
+        state.fromCache = false;
       });
   },
 });
 
-export const { setSelectedLocation, clearSelectedLocation, clearWeatherData } =
-  weatherSlice.actions;
+export const {
+  setSelectedLocation,
+  clearSelectedLocation,
+  clearWeatherData,
+  setCachedWeatherData,
+} = weatherSlice.actions;
 export default weatherSlice.reducer;

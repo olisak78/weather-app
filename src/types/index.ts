@@ -118,3 +118,7 @@ export interface WeatherApiError {
 export type Theme = 'light' | 'dark';
 export type Language = 'en' | 'he';
 export type Units = 'metric' | 'imperial';
+
+// Cache configuration for Weather
+export const CACHE_DURATION_MS = 30 * 60 * 1000; // 30 minutes
+export const MAX_CACHE_SIZE = 50; // Maximum number of cached locations

@@ -150,6 +150,23 @@
     }
   }
 
+  &__coordinate-notice {
+    text-align: center;
+    margin-bottom: 0.5rem;
+    padding: 0.25rem 0.75rem;
+    background-color: var(--warning-bg, #fff3cd);
+    color: var(--warning-color, #856404);
+    border: 1px solid var(--warning-border, #ffeaa7);
+    border-radius: 6px;
+    font-size: 0.8rem;
+
+    [data-theme='dark'] & {
+      background-color: var(--warning-bg-dark, #2d1b0e);
+      color: var(--warning-color-dark, #f6e05e);
+      border-color: var(--warning-border-dark, #744210);
+    }
+  }
+
   &__cache-info {
     display: flex;
     flex-direction: column;
