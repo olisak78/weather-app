@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Location } from '../../types';
-import './AutocompleteInput.scss';
 import { useAppSelector } from '../../hooks';
+import { Location } from '../../types';
+import { getLocationDisplayName } from '../../utils/stringUtils';
+import './AutocompleteInput.scss';
 
 interface AutocompleteInputProps {
   onLocationSelect: (location: Location) => void;
@@ -32,11 +33,9 @@ const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
 
     const nameField =
       currentLanguage === 'he' ? 'city_name_he' : 'city_name_en';
-    const filtered = locations
-      .filter((location) =>
-        location[nameField].toLowerCase().startsWith(searchTerm.toLowerCase())
-      )
-      .slice(0, 20); // Limit results for performance
+    const filtered = locations.filter((location) =>
+      location[nameField].toLowerCase().startsWith(searchTerm.toLowerCase())
+    );
 
     setFilteredLocations(filtered);
     setIsDropdownOpen(filtered.length > 0);
@@ -48,8 +47,7 @@ const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
   };
 
   const handleLocationSelect = (location: Location) => {
-    const locationName =
-      currentLanguage === 'he' ? location.city_name_he : location.city_name_en;
+    const locationName = getLocationDisplayName(location, currentLanguage);
     setSearchTerm(locationName);
     setIsDropdownOpen(false);
     onLocationSelect(location);
@@ -94,11 +92,21 @@ const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
     }, 150);
   };
 
-  const getDisplayName = (location: Location) => {
-    return currentLanguage === 'he'
-      ? location.city_name_he
-      : location.city_name_en;
-  };
+  // Scroll highlighted item into view
+  useEffect(() => {
+    if (highlightedIndex >= 0 && dropdownRef.current) {
+      const highlightedElement = dropdownRef.current.querySelector(
+        `.autocomplete__item:nth-child(${highlightedIndex + 1})`
+      ) as HTMLElement;
+
+      if (highlightedElement) {
+        highlightedElement.scrollIntoView({
+          block: 'nearest',
+          behavior: 'smooth',
+        });
+      }
+    }
+  }, [highlightedIndex]);
 
   return (
     <div className={`autocomplete ${isRTL ? 'rtl' : 'ltr'}`}>
@@ -116,7 +124,7 @@ const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
       {isDropdownOpen && (
         <div ref={dropdownRef} className='autocomplete__dropdown'>
           <div className='autocomplete__list'>
-            {filteredLocations.slice(0, 5).map((location, index) => (
+            {filteredLocations.map((location, index) => (
               <div
                 key={location.city_code}
                 className={`autocomplete__item ${
@@ -125,16 +133,10 @@ const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
                 onClick={() => handleLocationSelect(location)}
                 onMouseEnter={() => setHighlightedIndex(index)}
               >
-                {getDisplayName(location)}
+                {getLocationDisplayName(location, currentLanguage)}
               </div>
             ))}
           </div>
-
-          {filteredLocations.length > 5 && (
-            <div className='autocomplete__more'>
-              +{filteredLocations.length - 5} more results
-            </div>
-          )}
         </div>
       )}
     </div>

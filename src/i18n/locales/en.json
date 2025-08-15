@@ -8,5 +8,13 @@
   "lightTheme": "Light",
   "darkTheme": "Dark",
   "language": "Language",
-  "code": "Code"
+  "code": "Code",
+  "retryButton": "Retry",
+  "refreshButton": "Refresh Data",
+  "refreshData": "Refresh location data",
+  "lastUpdated": "Last updated",
+  "noCacheData": "No cached data available",
+  "cacheExpired": "Data cache has expired",
+  "cacheValid": "Data is {{hours}} hours old, expires at {{expiresAt}}",
+  "cacheStatusUnknown": "Cache status unknown"
 }

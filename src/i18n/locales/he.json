@@ -8,5 +8,13 @@
   "lightTheme": "בהיר",
   "darkTheme": "כהה",
   "language": "שפה",
-  "code": "קוד"
+  "code": "קוד",
+  "retryButton": "נסה שוב",
+  "refreshButton": "רענן נתונים",
+  "refreshData": "רענן נתוני מיקומים",
+  "lastUpdated": "עודכן לאחרונה",
+  "noCacheData": "אין נתונים שמורים זמינים",
+  "cacheExpired": "תוקף הנתונים השמורים פג",
+  "cacheValid": "הנתונים בני {{hours}} שעות, יפוגו ב-{{expiresAt}}",
+  "cacheStatusUnknown": "סטטוס נתונים שמורים לא ידוע"
 }

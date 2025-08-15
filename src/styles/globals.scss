@@ -28,6 +28,7 @@
 
   --scrollbar-track: #f1f1f1;
   --scrollbar-thumb: #c1c1c1;
+  --scrollbar-thumb-hover: #999;
 
   --info-bg: #d1ecf1;
   --info-color: #0c5460;
@@ -36,6 +37,9 @@
   --error-bg: #f8d7da;
   --error-color: #721c24;
   --error-border: #f5c6cb;
+
+  --success-color: #28a745;
+  --warning-color: #ffc107;
 }
 
 // Dark theme colors
@@ -67,6 +71,7 @@
 
   --scrollbar-track: #2d2d2d;
   --scrollbar-thumb: #5d5d5d;
+  --scrollbar-thumb-hover: #7d7d7d;
 
   --info-bg: #1e3a3a;
   --info-color: #b3d9d9;
@@ -75,6 +80,9 @@
   --error-bg: #3a1e1e;
   --error-color: #d9b3b3;
   --error-border: #552d2d;
+
+  --success-color: #20c997;
+  --warning-color: #ffc107;
 }
 
 // Global reset and base styles

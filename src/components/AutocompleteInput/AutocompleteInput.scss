@@ -47,7 +47,7 @@
   }
 
   &__list {
-    max-height: 200px;
+    max-height: 300px;
     overflow-y: auto;
 
     &::-webkit-scrollbar {
@@ -61,6 +61,10 @@
     &::-webkit-scrollbar-thumb {
       background: var(--scrollbar-thumb);
       border-radius: 3px;
+
+      &:hover {
+        background: var(--scrollbar-thumb-hover, #999);
+      }
     }
   }
 
@@ -83,15 +87,6 @@
     &:active {
       background-color: var(--item-active-bg);
     }
-  }
-
-  &__more {
-    padding: 8px 16px;
-    color: var(--text-muted);
-    font-size: 14px;
-    text-align: center;
-    background-color: var(--more-bg);
-    border-top: 1px solid var(--divider-color);
   }
 }
 

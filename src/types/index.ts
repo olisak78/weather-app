@@ -4,6 +4,17 @@ export interface Location {
   city_name_en: string;
 }
 
+export interface CachedLocationData {
+  locations: Location[];
+  timestamp: number;
+}
+
+export interface FetchLocationsResponse {
+  locations: Location[];
+  source: 'cache' | 'api' | 'expired-cache';
+  timestamp: number;
+}
+
 export interface ApiResponse {
   help: string;
   success: boolean;
