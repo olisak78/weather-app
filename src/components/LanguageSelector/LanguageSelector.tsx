@@ -10,39 +10,33 @@ const LanguageSelector: React.FC = () => {
   const { language } = useAppSelector((state) => state.app);
   const dispatch = useAppDispatch();
 
-  const languages = [
-    { code: 'en' as Language, name: 'English', flag: '🇺🇸' },
-    { code: 'he' as Language, name: 'עברית', flag: '🇮🇱' },
-  ];
-
-  const handleLanguageChange = (languageCode: Language) => {
-    dispatch(setLanguage(languageCode));
-    i18n.changeLanguage(languageCode);
+  const handleToggle = () => {
+    const newLanguage: Language = language === 'en' ? 'he' : 'en';
+    dispatch(setLanguage(newLanguage));
+    i18n.changeLanguage(newLanguage);
 
     // Update document direction
-    document.documentElement.dir = languageCode === 'he' ? 'rtl' : 'ltr';
-    document.documentElement.lang = languageCode;
+    document.documentElement.dir = newLanguage === 'he' ? 'rtl' : 'ltr';
+    document.documentElement.lang = newLanguage;
   };
 
   return (
     <div className='language-selector'>
-      <div className='language-selector__options'>
-        {languages.map((lang) => (
-          <button
-            key={lang.code}
-            className={`language-selector__option ${
-              language === lang.code ? 'active' : ''
-            }`}
-            onClick={() => handleLanguageChange(lang.code)}
-            aria-label={`Switch to ${lang.name}`}
-          >
-            <span className='language-selector__flag'>{lang.flag}</span>
-            <span className='language-selector__name'>
-              {lang.code.toUpperCase()}
+      <button
+        className={`language-selector__button ${language}`}
+        onClick={handleToggle}
+        aria-label={`Switch to ${
+          language === 'en' ? 'Hebrew' : 'English'
+        } language`}
+      >
+        <div className='language-selector__track'>
+          <div className='language-selector__slider'>
+            <span className='language-selector__text'>
+              {language === 'en' ? '🇺🇸' : '🇮🇱'}
             </span>
-          </button>
-        ))}
-      </div>
+          </div>
+        </div>
+      </button>
     </div>
   );
 };
