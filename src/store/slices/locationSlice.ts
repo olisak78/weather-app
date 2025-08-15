@@ -4,7 +4,6 @@ import { getCachedLocations, setCachedLocations } from '../../utils/cacheUtils';
 
 interface LocationState {
   locations: Location[];
-  selectedLocation: Location | null;
   loading: boolean;
   error: string | null;
   lastUpdated: number | null;
@@ -13,7 +12,6 @@ interface LocationState {
 
 const initialState: LocationState = {
   locations: [],
-  selectedLocation: null,
   loading: false,
   error: null,
   lastUpdated: null,
@@ -163,12 +161,6 @@ const locationSlice = createSlice({
   name: 'location',
   initialState,
   reducers: {
-    setSelectedLocation: (state, action: PayloadAction<Location>) => {
-      state.selectedLocation = action.payload;
-    },
-    clearSelectedLocation: (state) => {
-      state.selectedLocation = null;
-    },
     setCacheStatus: (
       state,
       action: PayloadAction<'fresh' | 'expired' | 'none'>
@@ -226,6 +218,5 @@ const locationSlice = createSlice({
   },
 });
 
-export const { setSelectedLocation, clearSelectedLocation, setCacheStatus } =
-  locationSlice.actions;
+export const { setCacheStatus } = locationSlice.actions;
 export default locationSlice.reducer;

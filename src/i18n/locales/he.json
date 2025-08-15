@@ -16,5 +16,19 @@
   "noCacheData": "אין נתונים שמורים זמינים",
   "cacheExpired": "תוקף הנתונים השמורים פג",
   "cacheValid": "הנתונים בני {{hours}} שעות, יפוגו ב-{{expiresAt}}",
-  "cacheStatusUnknown": "סטטוס נתונים שמורים לא ידוע"
+  "cacheStatusUnknown": "סטטוס נתונים שמורים לא ידוע",
+  "units": "יחידות",
+  "metric": "מטרי",
+  "imperial": "אימפריאלי",
+  "loadingWeather": "טוען נתוני מזג אוויר...",
+  "humidity": "לחות",
+  "wind": "רוח",
+  "pressure": "לחץ אטמוספרי",
+  "visibility": "נראות",
+  "kph": "קמ\"ש",
+  "mph": "מייל לשעה",
+  "mb": "מ\"ב",
+  "in": "אינץ'",
+  "km": "ק\"מ",
+  "miles": "מייל"
 }

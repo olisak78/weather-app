@@ -16,5 +16,19 @@
   "noCacheData": "No cached data available",
   "cacheExpired": "Data cache has expired",
   "cacheValid": "Data is {{hours}} hours old, expires at {{expiresAt}}",
-  "cacheStatusUnknown": "Cache status unknown"
+  "cacheStatusUnknown": "Cache status unknown",
+  "units": "Units",
+  "metric": "Metric",
+  "imperial": "Imperial",
+  "loadingWeather": "Loading weather data...",
+  "humidity": "Humidity",
+  "wind": "Wind",
+  "pressure": "Pressure",
+  "visibility": "Visibility",
+  "kph": "km/h",
+  "mph": "mph",
+  "mb": "mb",
+  "in": "in",
+  "km": "km",
+  "miles": "mi"
 }

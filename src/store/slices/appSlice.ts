@@ -1,14 +1,16 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Theme, Language } from '../../types';
+import { Theme, Language, Units } from '../../types';
 
 interface AppState {
   theme: Theme;
   language: Language;
+  units: Units;
 }
 
 const initialState: AppState = {
   theme: 'light',
   language: 'en',
+  units: 'metric',
 };
 
 const appSlice = createSlice({
@@ -21,8 +23,15 @@ const appSlice = createSlice({
     setLanguage: (state, action: PayloadAction<Language>) => {
       state.language = action.payload;
     },
+    toggleUnits: (state) => {
+      state.units = state.units === 'metric' ? 'imperial' : 'metric';
+    },
+    setUnits: (state, action: PayloadAction<Units>) => {
+      state.units = action.payload;
+    },
   },
 });
 
-export const { toggleTheme, setLanguage } = appSlice.actions;
+export const { toggleTheme, setLanguage, toggleUnits, setUnits } =
+  appSlice.actions;
 export default appSlice.reducer;

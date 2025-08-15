@@ -1,45 +1,49 @@
 import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAppSelector, useAppDispatch } from '../../hooks';
+import { fetchLocations } from '../../store/slices/locationSlice';
 import {
-  fetchLocations,
   setSelectedLocation,
-  refreshLocations,
-} from '../../store/slices/locationSlice';
+  fetchWeatherData,
+} from '../../store/slices/weatherSlice';
 import { Location } from '../../types';
-import { getCacheInfo } from '../../utils/cacheUtils';
-import { getLocationDisplayName as formatLocationName } from '../../utils/stringUtils';
+import { formatLocationName } from '../../utils/stringUtils';
 import AutocompleteInput from '../../components/AutocompleteInput/AutocompleteInput';
 import ThemeToggle from '../../components/ThemeToggle/ThemeToggle';
 import LanguageSelector from '../../components/LanguageSelector/LanguageSelector';
+import UnitsToggle from '../../components/UnitsToggle/UnitsToggle';
+import WeatherDisplay from '../../components/WeatherDisplay/WeatherDisplay';
 import './HomePage.scss';
 
 const HomePage: React.FC = () => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
-  const { selectedLocation, loading, error, lastUpdated, cacheStatus } =
-    useAppSelector((state) => state.location);
+  const { loading: locationsLoading, error: locationsError } = useAppSelector(
+    (state) => state.location
+  );
+  const {
+    selectedLocation,
+    weatherData,
+    loading: weatherLoading,
+    error: weatherError,
+  } = useAppSelector((state) => state.weather);
   const { language } = useAppSelector((state) => state.app);
 
   useEffect(() => {
-    dispatch(fetchLocations(false)); // false = don't force refresh, use cache if valid
+    dispatch(fetchLocations(false));
   }, [dispatch]);
 
   const handleLocationSelect = (location: Location) => {
     dispatch(setSelectedLocation(location));
+    const rawLocationName =
+      language === 'he' ? location.city_name_he : location.city_name_en;
+    // Use the formatted location name for weather API query
+    const locationName = formatLocationName(rawLocationName, language);
+    dispatch(fetchWeatherData(locationName));
   };
 
   const handleRefreshData = () => {
-    dispatch(refreshLocations());
-  };
-
-  const getLocationDisplayName = (location: Location) => {
-    return formatLocationName(location, language);
-  };
-
-  const formatLastUpdated = (timestamp: number) => {
-    const date = new Date(timestamp);
-    return date.toLocaleString(language === 'he' ? 'he-IL' : 'en-US');
+    dispatch(fetchLocations(true));
   };
 
   return (
@@ -47,6 +51,7 @@ const HomePage: React.FC = () => {
       <header className='home-page__header'>
         <div className='home-page__controls'>
           <LanguageSelector />
+          <UnitsToggle />
           <ThemeToggle />
         </div>
       </header>
@@ -56,54 +61,66 @@ const HomePage: React.FC = () => {
           <h1 className='home-page__title'>{t('welcome')}</h1>
 
           <div className='home-page__search-section'>
-            {loading && (
+            {locationsLoading && (
               <div className='home-page__loading'>
                 <div className='home-page__spinner'></div>
                 {t('loading')}
               </div>
             )}
 
-            {error && (
+            {locationsError && (
               <div className='home-page__error'>
                 <div className='home-page__error-message'>{t('error')}</div>
                 <button
                   className='home-page__retry-button'
                   onClick={handleRefreshData}
-                  disabled={loading}
+                  disabled={locationsLoading}
                 >
                   {t('retryButton')}
                 </button>
               </div>
             )}
 
-            {!loading && !error && (
+            {!locationsLoading && !locationsError && (
               <AutocompleteInput onLocationSelect={handleLocationSelect} />
             )}
           </div>
 
+          {/* Weather Display Section */}
           {selectedLocation && (
-            <div className='home-page__selected-location'>
-              <h2 className='home-page__selected-title'>
-                {t('selectedLocation')}
-              </h2>
-              <div className='home-page__location-card'>
-                <div className='home-page__location-name'>
-                  {getLocationDisplayName(selectedLocation)}
-                </div>
-                <div className='home-page__location-code'>
-                  {t('code')}: {selectedLocation.city_code}
-                </div>
-                {language === 'en' && selectedLocation.city_name_he && (
-                  <div className='home-page__location-alt'>
-                    Hebrew: {selectedLocation.city_name_he}
+            <div className='home-page__weather-section'>
+              {weatherLoading && (
+                <WeatherDisplay weatherData={null as any} loading={true} />
+              )}
+
+              {weatherError && !weatherLoading && (
+                <div className='home-page__weather-error'>
+                  <div className='home-page__error-message'>
+                    {t('error')}: {weatherError}
                   </div>
-                )}
-                {language === 'he' && selectedLocation.city_name_en && (
-                  <div className='home-page__location-alt'>
-                    English: {selectedLocation.city_name_en}
-                  </div>
-                )}
-              </div>
+                  <button
+                    className='home-page__retry-button'
+                    onClick={() => {
+                      const rawLocationName =
+                        language === 'he'
+                          ? selectedLocation.city_name_he
+                          : selectedLocation.city_name_en;
+                      const locationName = formatLocationName(
+                        rawLocationName,
+                        language
+                      );
+                      dispatch(fetchWeatherData(locationName));
+                    }}
+                    disabled={weatherLoading}
+                  >
+                    {t('retryButton')}
+                  </button>
+                </div>
+              )}
+
+              {!weatherLoading && !weatherError && weatherData && (
+                <WeatherDisplay weatherData={weatherData} loading={false} />
+              )}
             </div>
           )}
         </div>
