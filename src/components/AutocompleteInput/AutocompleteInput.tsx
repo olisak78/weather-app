@@ -31,12 +31,12 @@ const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
         // Search in Hebrew name
         const hebrewMatch = location.name_in_hebrew
           .toLowerCase()
-          .includes(searchTermLower);
+          .startsWith(searchTermLower);
 
         // Search in English name
         const englishMatch = location.name_in_english
           .toLowerCase()
-          .includes(searchTermLower);
+          .startsWith(searchTermLower);
         return hebrewMatch || englishMatch;
       })
       .slice(0, 50); // Limit results for performance
