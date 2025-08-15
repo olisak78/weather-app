@@ -107,7 +107,7 @@ const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
 
   const handleBlur = () => {
     // Delay closing to allow for clicks on options
-    setTimeout(() => setIsOpen(false), 150);
+    setTimeout(() => setIsOpen(false), 500);
   };
 
   const handleFocus = () => {
