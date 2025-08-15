@@ -202,20 +202,30 @@
   }
 
   &__no-results {
-    padding: 16px;
+    padding: 12px 16px; // Reduced padding from 16px
     text-align: center;
     color: var(--text-secondary, #6b7280);
     font-style: italic;
+    font-size: 0.875rem; // Slightly smaller font size
     background: var(--dropdown-bg, #ffffff);
     border: 1px solid var(--border-color, #e2e8f0);
     border-top: none;
     border-radius: 0 0 8px 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px; // Set a reasonable minimum height
+    line-height: 1.4;
+    opacity: 0.8; // Make it slightly more subtle
 
     [data-theme='dark'] & {
       color: var(--text-secondary-dark, #a0aec0);
       background: var(--dropdown-bg-dark, #2d3748);
       border-color: var(--border-color-dark, #4a5568);
     }
+
+    // Add a subtle animation for better UX
+    animation: fadeInNoResults 0.2s ease-out;
   }
 }
 
@@ -417,6 +427,12 @@
     &__location-details {
       gap: 6px;
     }
+
+    &__no-results {
+      padding: 10px 12px;
+      font-size: 0.8rem;
+      min-height: 40px;
+    }
   }
 
   .autocomplete {
@@ -475,6 +491,12 @@
 
     &__secondary-name {
       font-size: 0.8rem;
+    }
+
+    &__no-results {
+      padding: 8px 10px;
+      font-size: 0.75rem;
+      min-height: 36px;
     }
   }
 
