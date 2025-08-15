@@ -53,6 +53,7 @@ const HomePage: React.FC = () => {
   return (
     <div className='home-page'>
       <header className='home-page__header'>
+        <h1 className='home-page__title'>{t('welcome')}</h1>
         <div className='home-page__controls'>
           <LanguageSelector />
           <UnitsToggle />
@@ -62,8 +63,6 @@ const HomePage: React.FC = () => {
 
       <main className='home-page__main'>
         <div className='home-page__container'>
-          <h1 className='home-page__title'>{t('welcome')}</h1>
-
           <div className='home-page__search-section'>
             {locationsLoading && (
               <div className='home-page__loading'>
