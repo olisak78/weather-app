@@ -3,6 +3,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAppSelector } from '../../hooks';
 import { Location } from '../../types';
+import { FaSearch } from 'react-icons/fa';
 import './AutocompleteInput.scss';
 
 interface AutocompleteInputProps {
@@ -138,6 +139,9 @@ const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
           onFocus={handleFocus}
           autoComplete='off'
         />
+        <div className='autocomplete-input__search-icon'>
+          {(FaSearch as any)({})}
+        </div>
 
         {isOpen && filteredLocations.length > 0 && (
           <ul className='autocomplete-input__dropdown'>
