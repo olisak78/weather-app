@@ -67,7 +67,7 @@ A modern, responsive weather application built with React and TypeScript that pr
 
 ### API Configuration
 
-The app uses WeatherAPI.com for weather data. The API configuration is located in `src/types/index.ts`:
+The app uses WeatherAPI.com for weather data. The API configuration is located in `src/types/index.ts`
 
 ### Caching Configuration
 
