@@ -5,7 +5,7 @@
 ### 1. Clone the Repository
 
 ```
-git clone https://github.com/your-username/weather-app.git
+git clone https://github.com/olisak78/weather-app.git
 cd weather-app
 ```
 
