@@ -4,6 +4,8 @@ import {
   WeatherData,
   WeatherApiResponse,
   WeatherApiError,
+  WEATHER_API_BASE_URL,
+  API_KEY,
 } from '../../types';
 import {
   itmToLatLng,
@@ -28,9 +30,6 @@ const initialState: WeatherState = {
   usedCoordinates: false,
   fromCache: false,
 };
-
-const API_KEY = '33e82af910564a92a3591251251408';
-const WEATHER_API_BASE_URL = 'https://api.weatherapi.com/v1/current.json';
 
 // Enhanced async thunk for fetching weather data with coordinate fallback
 export const fetchWeatherData = createAsyncThunk<

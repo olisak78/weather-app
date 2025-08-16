@@ -1,6 +1,11 @@
 // src/store/slices/locationSlice.ts
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
-import { Location, ApiResponse, FetchLocationsResponse } from '../../types';
+import {
+  Location,
+  ApiResponse,
+  FetchLocationsResponse,
+  LOCATIONS_API_URL,
+} from '../../types';
 import { getCachedLocations, setCachedLocations } from '../../utils/cacheUtils';
 import { formatEnglishLocationName } from '../../utils/stringUtils';
 
@@ -19,10 +24,6 @@ const initialState: LocationState = {
   lastUpdated: null,
   cacheStatus: 'none',
 };
-
-// Updated API URL for locations with coordinates
-const LOCATIONS_API_URL =
-  'https://data.gov.il/api/3/action/datastore_search?resource_id=e9701dcb-9f1c-43bb-bd44-eb380ade542f';
 
 // Async thunk for fetching locations with improved caching logic
 export const fetchLocations = createAsyncThunk<

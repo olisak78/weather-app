@@ -122,3 +122,9 @@ export type Units = 'metric' | 'imperial';
 // Cache configuration for Weather
 export const CACHE_DURATION_MS = 30 * 60 * 1000; // 30 minutes
 export const MAX_CACHE_SIZE = 50; // Maximum number of cached locations
+
+export const API_KEY = '33e82af910564a92a3591251251408';
+export const WEATHER_API_BASE_URL =
+  'https://api.weatherapi.com/v1/current.json';
+export const LOCATIONS_API_URL =
+  'https://data.gov.il/api/3/action/datastore_search?resource_id=e9701dcb-9f1c-43bb-bd44-eb380ade542f';

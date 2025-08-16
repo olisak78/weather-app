@@ -144,7 +144,11 @@ const HomePage: React.FC = () => {
           {selectedLocation && (
             <div className='home-page__weather-section'>
               {weatherLoading && (
-                <WeatherDisplay weatherData={null as any} loading={true} />
+                <WeatherDisplay
+                  weatherData={null as any}
+                  selectedLocation={null as any}
+                  loading={true}
+                />
               )}
 
               {weatherError && !weatherLoading && (
@@ -174,7 +178,11 @@ const HomePage: React.FC = () => {
                     </div>
                   )}
 
-                  <WeatherDisplay weatherData={weatherData} loading={false} />
+                  <WeatherDisplay
+                    weatherData={weatherData}
+                    selectedLocation={selectedLocation}
+                    loading={false}
+                  />
                 </div>
               )}
             </div>

@@ -1,17 +1,19 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAppSelector } from '../../hooks';
-import { WeatherData } from '../../types';
+import { WeatherData, Location } from '../../types';
 import './WeatherDisplay.scss';
 
 interface WeatherDisplayProps {
   weatherData: WeatherData;
+  selectedLocation: Location;
   loading?: boolean;
 }
 
 const WeatherDisplay: React.FC<WeatherDisplayProps> = ({
   weatherData,
   loading = false,
+  selectedLocation,
 }) => {
   const { t } = useTranslation();
   const { units, language } = useAppSelector((state) => state.app);
@@ -108,8 +110,11 @@ const WeatherDisplay: React.FC<WeatherDisplayProps> = ({
     <div className='weather-display'>
       <div className='weather-display__header'>
         <h2 className='weather-display__location'>
-          {weatherData.location?.name || 'Unknown'},{' '}
-          {weatherData.location?.country || 'Unknown'}
+          {language === 'he'
+            ? `${selectedLocation.name_in_hebrew || ''}`
+            : `${selectedLocation.name_in_english || ''},${' '}${
+                weatherData?.location?.country
+              }`}
         </h2>
         <p className='weather-display__updated'>
           {t('lastUpdated')}:{' '}
@@ -117,7 +122,7 @@ const WeatherDisplay: React.FC<WeatherDisplayProps> = ({
             ? new Date(weatherData.last_updated).toLocaleString(
                 language === 'he' ? 'he-IL' : 'en-US'
               )
-            : 'Unknown'}
+            : ''}
         </p>
       </div>
 
