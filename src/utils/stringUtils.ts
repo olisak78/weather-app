@@ -1,5 +1,3 @@
-// src/utils/stringUtils.ts
-
 /**
  * Formats English location names to proper case (first letter capitalized, rest lowercase)
  * Examples: "TEL AVIV" -> "Tel Aviv", "ELAT" -> "Elat", "BEN GURION" -> "Ben Gurion"

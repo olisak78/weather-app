@@ -1,7 +1,9 @@
 import { render, screen } from '@testing-library/react';
 
-test('renders learn react link', () => {
-  render(<>learn react</>);
-  const linkElement = screen.getByText(/learn react/i);
+// Tests are not required for this assignment
+
+test('renders demo', () => {
+  render(<>not required</>);
+  const linkElement = screen.getByText(/not required/i);
   expect(linkElement).toBeInTheDocument();
 });

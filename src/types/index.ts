@@ -1,4 +1,3 @@
-// src/types/index.ts
 export interface Location {
   symbol_number: number;
   name_in_hebrew: string;

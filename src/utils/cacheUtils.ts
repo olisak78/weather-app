@@ -12,7 +12,6 @@ export function setCachedLocations(locations: Location[]): void {
       timestamp: Date.now(),
     };
     localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
-    console.log(`Cached ${locations.length} locations with new structure`);
   } catch (error) {
     console.error('Error caching locations:', error);
   }
@@ -25,7 +24,6 @@ export function getCachedLocations(): Location[] | null {
       console.log('No cached location data found');
       return null;
     }
-
     const cacheData: CachedLocationData = JSON.parse(cached);
 
     // Check if cache is expired
@@ -36,32 +34,6 @@ export function getCachedLocations(): Location[] | null {
       localStorage.removeItem(CACHE_KEY);
       return null;
     }
-
-    // Validate the structure of cached data (migration check)
-    if (!cacheData.locations || !Array.isArray(cacheData.locations)) {
-      console.log('Invalid cached data structure, removing...');
-      localStorage.removeItem(CACHE_KEY);
-      return null;
-    }
-
-    // Check if the first location has the new structure
-    const firstLocation = cacheData.locations[0];
-    if (
-      !firstLocation ||
-      typeof firstLocation.symbol_number === 'undefined' ||
-      typeof firstLocation.name_in_hebrew === 'undefined' ||
-      typeof firstLocation.name_in_english === 'undefined' ||
-      typeof firstLocation.X === 'undefined' ||
-      typeof firstLocation.Y === 'undefined'
-    ) {
-      console.log('Cached data uses old structure, removing...');
-      localStorage.removeItem(CACHE_KEY);
-      return null;
-    }
-
-    console.log(
-      `Retrieved ${cacheData.locations.length} cached locations with new structure`
-    );
     return cacheData.locations;
   } catch (error) {
     console.error('Error retrieving cached locations:', error);
