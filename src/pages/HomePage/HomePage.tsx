@@ -13,7 +13,6 @@ import ThemeToggle from '../../components/ThemeToggle/ThemeToggle';
 import LanguageSelector from '../../components/LanguageSelector/LanguageSelector';
 import UnitsToggle from '../../components/UnitsToggle/UnitsToggle';
 import WeatherDisplay from '../../components/WeatherDisplay/WeatherDisplay';
-import logo from '../../logo.svg';
 import './HomePage.scss';
 
 const HomePage: React.FC = () => {
@@ -28,7 +27,6 @@ const HomePage: React.FC = () => {
     loading: weatherLoading,
     error: weatherError,
     usedCoordinates,
-    fromCache,
   } = useAppSelector((state) => state.weather);
   const { language } = useAppSelector((state) => state.app);
 

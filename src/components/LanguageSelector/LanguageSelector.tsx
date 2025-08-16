@@ -8,7 +8,7 @@ import { ReactComponent as UK } from '../../styles/uk.svg';
 import './LanguageSelector.scss';
 
 const LanguageSelector: React.FC = () => {
-  const { t, i18n } = useTranslation();
+  const { i18n } = useTranslation();
   const { language } = useAppSelector((state) => state.app);
   const dispatch = useAppDispatch();
 

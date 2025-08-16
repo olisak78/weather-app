@@ -123,6 +123,12 @@ export type Units = 'metric' | 'imperial';
 export const CACHE_DURATION_MS = 30 * 60 * 1000; // 30 minutes
 export const MAX_CACHE_SIZE = 50; // Maximum number of cached locations
 
+// Cache configuration for Locations
+export const CACHE_KEY = 'israeli_locations_cache';
+export const CACHE_DURATION_LOCATION_MS = 24 * 60 * 60 * 1000; // 24 hours
+
+export const MAX_SEARCH_RESULTS = 50; // limit results for performance
+
 export const API_KEY = '33e82af910564a92a3591251251408';
 export const WEATHER_API_BASE_URL =
   'https://api.weatherapi.com/v1/current.json';

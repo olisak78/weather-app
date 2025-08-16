@@ -1,8 +1,7 @@
-// src/components/AutocompleteInput/AutocompleteInput.tsx
 import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAppSelector } from '../../hooks';
-import { Location } from '../../types';
+import { Location, MAX_SEARCH_RESULTS } from '../../types';
 import { FaSearch } from 'react-icons/fa';
 import './AutocompleteInput.scss';
 
@@ -39,7 +38,7 @@ const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
           .startsWith(searchTermLower);
         return hebrewMatch || englishMatch;
       })
-      .slice(0, 50); // Limit results for performance
+      .slice(0, MAX_SEARCH_RESULTS); // Limit results for performance
   }, [searchTerm, locations]);
 
   // Get display name based on current language
@@ -76,6 +75,7 @@ const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
     onLocationSelect(location);
   };
 
+  // Keyboard Support for better UX
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (!isOpen || filteredLocations.length === 0) return;
 

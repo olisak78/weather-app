@@ -26,12 +26,8 @@ const appSlice = createSlice({
     toggleUnits: (state) => {
       state.units = state.units === 'metric' ? 'imperial' : 'metric';
     },
-    setUnits: (state, action: PayloadAction<Units>) => {
-      state.units = action.payload;
-    },
   },
 });
 
-export const { toggleTheme, setLanguage, toggleUnits, setUnits } =
-  appSlice.actions;
+export const { toggleTheme, setLanguage, toggleUnits } = appSlice.actions;
 export default appSlice.reducer;

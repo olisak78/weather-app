@@ -6,7 +6,7 @@
   transition: all 0.3s ease;
   max-width: 600px;
   width: 100%;
-  margin: 0 auto; // Center the weather display
+  margin: 0 auto;
 
   &:hover {
     box-shadow: 0 8px 30px var(--shadow-color);
@@ -64,8 +64,8 @@
   &__primary {
     display: flex;
     align-items: center;
-    justify-content: center; // Center the primary content
-    gap: 1rem; // Reduced gap to bring temperature closer to condition
+    justify-content: center;
+    gap: 1rem;
   }
 
   &__temperature {
@@ -186,7 +186,7 @@
 
     &__primary {
       flex-direction: column;
-      gap: 1rem; // Reduced gap for mobile
+      gap: 1rem;
       text-align: center;
     }
 

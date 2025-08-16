@@ -1,12 +1,10 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
 import { useAppSelector, useAppDispatch } from '../../hooks';
 import { toggleUnits } from '../../store/slices/appSlice';
 import { RiCelsiusFill, RiFahrenheitFill } from 'react-icons/ri';
 import './UnitsToggle.scss';
 
 const UnitsToggle: React.FC = () => {
-  const { t } = useTranslation();
   const { units } = useAppSelector((state) => state.app);
   const dispatch = useAppDispatch();
 

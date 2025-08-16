@@ -25,6 +25,15 @@ const initialState: LocationState = {
   cacheStatus: 'none',
 };
 
+/*
+ * NOTE: I fetch and cache the entire list of Israeli locations because:
+ * 1. The data.gov.il API does not support partial name search queries
+ * 2. I need all location data locally to implement client-side autocomplete functionality
+ * 3. This enables instant search results without repeated API calls for each keystroke
+ * 4. The full dataset is relatively small and cached for 24 hours
+ * 5. Without local caching, users would have to type exact location names, making the app unusable
+ */
+
 // Async thunk for fetching locations with improved caching logic
 export const fetchLocations = createAsyncThunk<
   FetchLocationsResponse,
@@ -45,8 +54,6 @@ export const fetchLocations = createAsyncThunk<
           };
         }
       }
-
-      console.log('Fetching fresh location data from API...');
 
       // Fetch fresh data from API with new URL
       const response = await fetch(LOCATIONS_API_URL);
@@ -92,10 +99,6 @@ export const fetchLocations = createAsyncThunk<
         throw new Error('No location data received from API');
       }
 
-      console.log(
-        `Loaded ${locations.length} locations from API with formatted English names`
-      );
-
       // Cache the fresh data
       setCachedLocations(locations);
 
@@ -110,7 +113,6 @@ export const fetchLocations = createAsyncThunk<
       // If API fails, try to use cached data even if expired as fallback
       const cachedLocations = getCachedLocations();
       if (cachedLocations && cachedLocations.length > 0) {
-        console.log('API failed, using expired cache as fallback');
         return {
           locations: cachedLocations,
           source: 'expired-cache' as const,
@@ -124,79 +126,6 @@ export const fetchLocations = createAsyncThunk<
     }
   }
 );
-
-// Async thunk to force refresh data
-export const refreshLocations = createAsyncThunk<
-  FetchLocationsResponse,
-  void,
-  { rejectValue: string }
->('location/refreshLocations', async (_, { rejectWithValue }) => {
-  try {
-    console.log('Force refreshing location data...');
-
-    // Fetch fresh data from API with new URL
-    const response = await fetch(LOCATIONS_API_URL);
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data: ApiResponse = await response.json();
-
-    if (!data.success) {
-      throw new Error('API request was not successful');
-    }
-
-    if (!data.result || !data.result.records) {
-      throw new Error('Invalid API response structure');
-    }
-
-    // Transform the data to keep only required fields with new structure and format English names
-    const locations: Location[] = data.result.records
-      .filter((record) => {
-        // Filter out records with missing essential data
-        return (
-          record.name_in_hebrew &&
-          record.name_in_english &&
-          typeof record.X === 'number' &&
-          typeof record.Y === 'number'
-        );
-      })
-      .map((record) => ({
-        symbol_number: record.symbol_number,
-        name_in_hebrew: record.name_in_hebrew?.trim() || '',
-        // Format English names to proper case (first letter capitalized, rest lowercase)
-        name_in_english: formatEnglishLocationName(
-          record.name_in_english?.trim() || ''
-        ),
-        X: record.X,
-        Y: record.Y,
-      }));
-
-    // Validate that we have data
-    if (locations.length === 0) {
-      throw new Error('No location data received from API');
-    }
-
-    console.log(
-      `Refreshed ${locations.length} locations from API with formatted English names`
-    );
-
-    // Cache the fresh data
-    setCachedLocations(locations);
-
-    return {
-      locations,
-      source: 'api' as const,
-      timestamp: Date.now(),
-    };
-  } catch (error) {
-    console.error('Error refreshing locations:', error);
-    return rejectWithValue(
-      error instanceof Error ? error.message : 'Failed to refresh data'
-    );
-  }
-});
 
 const locationSlice = createSlice({
   name: 'location',
@@ -240,21 +169,6 @@ const locationSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
         state.cacheStatus = 'none';
-      })
-      // Handle refreshLocations
-      .addCase(refreshLocations.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(refreshLocations.fulfilled, (state, action) => {
-        state.loading = false;
-        state.locations = action.payload.locations;
-        state.lastUpdated = action.payload.timestamp;
-        state.cacheStatus = 'fresh';
-      })
-      .addCase(refreshLocations.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
       });
   },
 });

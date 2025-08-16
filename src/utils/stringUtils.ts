@@ -74,17 +74,6 @@ export function formatLocationNameForWeatherAPI(location: any): string {
 }
 
 /**
- * Legacy function for backward compatibility
- * @deprecated Use getLocationDisplayName instead
- */
-export function formatLocationName(name: string, language: string): string {
-  console.warn(
-    'formatLocationName is deprecated. Use getLocationDisplayName instead.'
-  );
-  return formatEnglishLocationName(name);
-}
-
-/**
  * Normalize search terms for better matching
  */
 export function normalizeSearchTerm(term: string): string {

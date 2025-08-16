@@ -60,7 +60,6 @@ export const fetchWeatherData = createAsyncThunk<
 
         // Check if it's an error response
         if ('error' in data) {
-          console.log('Weather API returned error:', data.error);
           throw new Error(`Weather API error: ${data.error.message}`);
         }
 
@@ -71,8 +70,6 @@ export const fetchWeatherData = createAsyncThunk<
           );
           throw new Error('Location not in Israel');
         }
-
-        console.log('Successfully fetched weather by location name');
       } else {
         console.log(
           'Initial weather request failed, trying with coordinates...'
@@ -198,59 +195,6 @@ export const fetchWeatherData = createAsyncThunk<
   }
 );
 
-// Simplified thunk for backwards compatibility (if needed)
-export const fetchWeatherDataByName = createAsyncThunk<
-  WeatherData,
-  string,
-  { rejectValue: string }
->(
-  'weather/fetchWeatherDataByName',
-  async (locationQuery: string, { rejectWithValue }) => {
-    try {
-      const response = await fetch(
-        `${WEATHER_API_BASE_URL}?key=${API_KEY}&q=${encodeURIComponent(
-          locationQuery
-        )}&aqi=no`
-      );
-
-      if (!response.ok) {
-        throw new Error(`Weather API error! status: ${response.status}`);
-      }
-
-      const data: WeatherApiResponse | WeatherApiError = await response.json();
-
-      // Check if it's an error response
-      if ('error' in data) {
-        throw new Error(`Weather API error: ${data.error.message}`);
-      }
-
-      // Transform the API response to our WeatherData structure
-      const weatherData: WeatherData = {
-        location: data.location,
-        last_updated: data.current.last_updated,
-        temp_c: data.current.temp_c,
-        temp_f: data.current.temp_f,
-        condition: data.current.condition,
-        wind_mph: data.current.wind_mph,
-        wind_kph: data.current.wind_kph,
-        wind_dir: data.current.wind_dir,
-        pressure_mb: data.current.pressure_mb,
-        pressure_in: data.current.pressure_in,
-        humidity: data.current.humidity,
-        vis_km: data.current.vis_km,
-        vis_miles: data.current.vis_miles,
-      };
-
-      return weatherData;
-    } catch (error) {
-      console.error('Error fetching weather data:', error);
-      return rejectWithValue(
-        error instanceof Error ? error.message : 'Failed to fetch weather data'
-      );
-    }
-  }
-);
-
 const weatherSlice = createSlice({
   name: 'weather',
   initialState,
@@ -270,7 +214,7 @@ const weatherSlice = createSlice({
       state.usedCoordinates = false;
       state.fromCache = false;
     },
-    // New action to set cached weather data
+
     setCachedWeatherData: (
       state,
       action: PayloadAction<{
@@ -301,26 +245,6 @@ const weatherSlice = createSlice({
         state.fromCache = false;
       })
       .addCase(fetchWeatherData.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
-        state.weatherData = null;
-        state.usedCoordinates = false;
-        state.fromCache = false;
-      })
-      // Handle backwards compatible fetchWeatherDataByName
-      .addCase(fetchWeatherDataByName.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-        state.usedCoordinates = false;
-        state.fromCache = false;
-      })
-      .addCase(fetchWeatherDataByName.fulfilled, (state, action) => {
-        state.loading = false;
-        state.weatherData = action.payload;
-        state.usedCoordinates = false;
-        state.fromCache = false;
-      })
-      .addCase(fetchWeatherDataByName.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
         state.weatherData = null;

@@ -49,7 +49,6 @@ const WeatherDisplay: React.FC<WeatherDisplayProps> = ({
     colorClass: string;
   } => {
     const isMetric = units === 'metric';
-    // Add null checks here too
     const tempC = weatherData.temp_c ?? 0;
     const tempF = weatherData.temp_f ?? 32;
     const temp = isMetric ? tempC : tempF;

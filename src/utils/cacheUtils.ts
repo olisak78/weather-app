@@ -1,7 +1,9 @@
-import { Location, CachedLocationData } from '../types';
-
-const CACHE_KEY = 'israeli_locations_cache';
-const CACHE_DURATION_MS = 24 * 60 * 60 * 1000; // 24 hours
+import {
+  Location,
+  CachedLocationData,
+  CACHE_KEY,
+  CACHE_DURATION_LOCATION_MS,
+} from '../types';
 
 export function setCachedLocations(locations: Location[]): void {
   try {
@@ -27,7 +29,8 @@ export function getCachedLocations(): Location[] | null {
     const cacheData: CachedLocationData = JSON.parse(cached);
 
     // Check if cache is expired
-    const isExpired = Date.now() - cacheData.timestamp > CACHE_DURATION_MS;
+    const isExpired =
+      Date.now() - cacheData.timestamp > CACHE_DURATION_LOCATION_MS;
     if (isExpired) {
       console.log('Cached location data is expired, removing...');
       localStorage.removeItem(CACHE_KEY);
@@ -91,7 +94,7 @@ export function getCacheInfo(): {
 
     const cacheData: CachedLocationData = JSON.parse(cached);
     const age = Date.now() - cacheData.timestamp;
-    const isExpired = age > CACHE_DURATION_MS;
+    const isExpired = age > CACHE_DURATION_LOCATION_MS;
 
     return {
       hasCache: true,
