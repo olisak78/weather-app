@@ -31,6 +31,25 @@ const initialState: WeatherState = {
   fromCache: false,
 };
 
+// Helper function to transform API response to WeatherData structure
+const transformWeatherApiResponse = (data: WeatherApiResponse): WeatherData => {
+  return {
+    location: data.location,
+    last_updated: data.current.last_updated,
+    temp_c: data.current.temp_c,
+    temp_f: data.current.temp_f,
+    condition: data.current.condition,
+    wind_mph: data.current.wind_mph,
+    wind_kph: data.current.wind_kph,
+    wind_dir: data.current.wind_dir,
+    pressure_mb: data.current.pressure_mb,
+    pressure_in: data.current.pressure_in,
+    humidity: data.current.humidity,
+    vis_km: data.current.vis_km,
+    vis_miles: data.current.vis_miles,
+  };
+};
+
 // Enhanced async thunk for fetching weather data with coordinate fallback
 export const fetchWeatherData = createAsyncThunk<
   { weatherData: WeatherData; usedCoordinates: boolean },
@@ -83,21 +102,7 @@ export const fetchWeatherData = createAsyncThunk<
       }
 
       // Transform the API response to our WeatherData structure
-      const weatherData: WeatherData = {
-        location: data.location,
-        last_updated: data.current.last_updated,
-        temp_c: data.current.temp_c,
-        temp_f: data.current.temp_f,
-        condition: data.current.condition,
-        wind_mph: data.current.wind_mph,
-        wind_kph: data.current.wind_kph,
-        wind_dir: data.current.wind_dir,
-        pressure_mb: data.current.pressure_mb,
-        pressure_in: data.current.pressure_in,
-        humidity: data.current.humidity,
-        vis_km: data.current.vis_km,
-        vis_miles: data.current.vis_miles,
-      };
+      const weatherData = transformWeatherApiResponse(data);
 
       return { weatherData, usedCoordinates };
     } catch (firstError) {
@@ -148,32 +153,8 @@ export const fetchWeatherData = createAsyncThunk<
             `Weather API error with coordinates: ${coordinateData.error.message}`
           );
         }
-
-        // Double-check the country is Israel (should be, since we're using Israeli coordinates)
-        if (coordinateData.location.country.toLowerCase() !== 'israel') {
-          console.warn(
-            `Warning: Coordinate-based location shows country as ${coordinateData.location.country}, but continuing...`
-          );
-        }
-
-        console.log('Successfully fetched weather by coordinates');
-
         // Transform the API response to our WeatherData structure
-        const weatherData: WeatherData = {
-          location: coordinateData.location,
-          last_updated: coordinateData.current.last_updated,
-          temp_c: coordinateData.current.temp_c,
-          temp_f: coordinateData.current.temp_f,
-          condition: coordinateData.current.condition,
-          wind_mph: coordinateData.current.wind_mph,
-          wind_kph: coordinateData.current.wind_kph,
-          wind_dir: coordinateData.current.wind_dir,
-          pressure_mb: coordinateData.current.pressure_mb,
-          pressure_in: coordinateData.current.pressure_in,
-          humidity: coordinateData.current.humidity,
-          vis_km: coordinateData.current.vis_km,
-          vis_miles: coordinateData.current.vis_miles,
-        };
+        const weatherData = transformWeatherApiResponse(coordinateData);
 
         return { weatherData, usedCoordinates: true };
       } catch (coordinateError) {
